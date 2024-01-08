@@ -3,19 +3,26 @@
  * Input: [FASTQ] Unpreprocessed reads 
  * Output: [HTML] General report for unpreprocessed reads 
  */
+
 process quality_control {
-	tag {query.simpleName}
+	tag {id}
+	publishDir "${params.output_dir}/statistics/qc-preprocessing", mode: 'copy', pattern: "*_fastqc.{html,zip}"
+
 	
 	input:
-	path query
+	tuple val(id), path(reads)
 
 	output:
-	path "${query.baseName}*"
+	path "*_fastqc.{html,zip}",				emit: output
+	path("${task.process}.version.txt"), 	emit: version
 
 	"""
-	fastqc ${query} -o .
+	fastqc ${reads[0]} ${reads[1]} -o .
+
+	echo -e "${task.process}\tFastQC\t\$(fastqc --version | rev | cut -f 1 -d' ' | rev)" > ${task.process}.version.txt
 	"""
 }
+
 
 /*
  * Checks preprocessed reads for general metrics
