@@ -30,7 +30,7 @@ process quality_control {
  * Output: [HTML] General report for preprocessed reads
  */
 process quality_control_2 {
-	tag {query.simpleName}
+	tag {id}
 	
 	input:
 	tuple val(id), path(reads1), path(reads2)
@@ -56,7 +56,7 @@ process quality_control_2 {
  *			report_trimming -> [TXT] Report adapter trimming
  */
 process adapter_removal {
-	tag {query.simpleName}
+	tag {id}
 
 	input:
 	tuple val(id), path(reads)
@@ -83,7 +83,7 @@ process adapter_removal {
  *			report_quality_filter 	-> [TXT] Report of quality filtering
  */
 process quality_filter {
-	tag {query.simpleName}
+	tag {id}
 	publishDir "${params.output}/statistics", mode: 'copy', pattern: "summary-quality-filter.txt"
 
 	input:
