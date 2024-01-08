@@ -50,17 +50,17 @@ if ( params.help ) {
  * Welcome log to be displayed before workflow
  */
 log.info """\
-         ${params.manifest.name} v${params.manifest.version}
-         ==========================
-         reads          : ${params.reads}
-         reference      : ${params.reference}
-         output to      : ${params.output_dir}
-         --
-         run as         : ${workflow.commandLine}
-         started at     : ${workflow.start}
-         config files   : ${workflow.configFiles}
-         """
-         .stripIndent()
+        ${params.manifest.name} v${params.manifest.version}
+        ==========================
+        reads          : ${params.reads}
+        reference      : ${params.reference}
+        output to      : ${params.output_dir}
+        --
+        run as         : ${workflow.commandLine}
+        started at     : ${workflow.start}
+        config files   : ${workflow.configFiles}
+        """
+        .stripIndent()
 
 //essential input files
 input_reads     = Channel.fromFilePairs( params.reads )			//FASTQ file(s) containing reads
@@ -87,6 +87,9 @@ input_files = input_reads
  */
 workflow {
     quality_control(input_reads)
+    adapter_removal(input_reads)
+    quality_filter(adapter_removal.out.reads)
+    quality_control_2(quality_filter.out.reads)
 
     // Collect metadata
     collect_metadata()
@@ -94,6 +97,9 @@ workflow {
     collect_versions(collect_metadata.out.version
                         .concat(get_md5sum.out.version)
                         .concat(quality_control.out.version)
+                        .concat(adapter_removal.out.version)
+                        .concat(quality_filter.out.version)
+                        .concat(quality_control_2.out.version)
                         .unique()
                         .flatten().toList()
     )
@@ -102,7 +108,7 @@ workflow {
 
 
 /*
- * Prints complection status to command line
+ * Prints completion status to command line
  */
 workflow.onComplete{
 	println "Pipeline completed at: $workflow.complete"

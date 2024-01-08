@@ -61,7 +61,6 @@ process multiqc{
     script:
 	"""
 	multiqc .
-
     
     echo -e "${task.process}\tmultiqc\t\$(multiqc --version |  cut -f3 -d' ')" > ${task.process}.version.txt
 	"""
