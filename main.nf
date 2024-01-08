@@ -11,6 +11,13 @@ include{
     collect_versions
 } from './modules/default_processes.nf'
 
+include {
+    quality_control
+    quality_control_2
+    adapter_removal
+    quality_filter
+} from './modules/read_processing.nf'
+
 /*
  * Prints help and exits workflow afterwards when parameter --help is set to true
  */
