@@ -67,7 +67,7 @@ process adapter_removal {
 	tuple path("${task.process}.version.txt"), path("${task.process}.version2.txt"), 				emit: version
 
 	"""
-	trim_galore --cores ${task.cpus} -o . --length ${params.min_length} ${query} --quality 0 --paired ${reads[0]} ${reads[1]}
+	trim_galore --cores ${task.cpus} -o . --length ${params.min_length} --quality 0 --paired ${reads[0]} ${reads[1]}
 
 	echo -e "${task.process}\ttrim_galore\t\$(trim_galore -v | head -4 | tail -1 | sed -e 's/^[ \t]*//' | rev | cut -f 1 -d' ' | rev)" > ${task.process}.version.txt
 	echo -e "${task.process}\tcutadapt\t\$(cutadapt --version)" > ${task.process}.version2.txt
