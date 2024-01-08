@@ -86,6 +86,7 @@ process adapter_removal {
 process quality_filter {
 	tag {id}
 	publishDir "${params.output_dir}/statistics/quality_filter", mode: 'copy', pattern: "${id}_report_quality.txt"
+	publishDir "${params.output_dir}/processed-reads", mode: 'copy', pattern: "*.qtrim.fastq"
 
 	input:
 	tuple val(id), path(reads1), path(reads2)
