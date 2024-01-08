@@ -10,14 +10,14 @@ process quality_control {
 
 	
 	input:
-	tuple val(id), path(reads1), path(reads2)
+	tuple val(id), path(reads)
 
 	output:
 	path "*_fastqc.{html,zip}",				emit: output
 	path("${task.process}.version.txt"), 	emit: version
 
 	"""
-	fastqc ${reads1} ${reads2} -o .
+	fastqc ${reads[0]} ${reads[1]} -o .
 
 	echo -e "${task.process}\tFastQC\t\$(fastqc --version | rev | cut -f 1 -d' ' | rev)" > ${task.process}.version.txt
 	"""
@@ -59,15 +59,15 @@ process adapter_removal {
 	tag {query.simpleName}
 
 	input:
-	tuple val(id), path(reads1), path(reads2)
+	tuple val(id), path(reads)
 
 	output:
-	tuple val(id), path("${reads1.simpleName}_val_1.fq"), path("${reads2.simpleName}_val_2.fq"), 	emit: reads
+	tuple val(id), path("${reads[0].simpleName}_val_1.fq"), path("${reads[1].simpleName}_val_2.fq"), 	emit: reads
 	path "${query}_trimming_report.txt", 															emit: report
 	tuple path("${task.process}.version.txt"), path("${task.process}.version2.txt"), 				emit: version
 
 	"""
-	trim_galore --cores ${task.cpus} -o . --length ${params.min_length} ${query} --quality 0 --paired ${reads1} ${reads2}
+	trim_galore --cores ${task.cpus} -o . --length ${params.min_length} ${query} --quality 0 --paired ${reads[0]} ${reads[1]}
 
 	echo -e "${task.process}\ttrim_galore\t\$(trim_galore -v | head -4 | tail -1 | sed -e 's/^[ \t]*//' | rev | cut -f 1 -d' ' | rev)" > ${task.process}.version.txt
 	echo -e "${task.process}\tcutadapt\t\$(cutadapt --version)" > ${task.process}.version2.txt
