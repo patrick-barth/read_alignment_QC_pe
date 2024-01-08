@@ -56,6 +56,7 @@ log.info """\
 
 //essential input files
 input_reads     = Channel.fromFilePairs( params.reads )			//FASTQ file(s) containing reads
+reference       = Channel.fromPath( params.reference )
 //non essential input files
 if(params.annotation != 'NO_FILE'){
     annotation_file = Channel.fromPath( params.annotation )
