@@ -63,8 +63,8 @@ process adapter_removal {
 
 	output:
 	tuple val(id), path("${reads[0].simpleName}_val_1.fq"), path("${reads[1].simpleName}_val_2.fq"), 	emit: reads
-	path "${query}_trimming_report.txt", 															emit: report
-	tuple path("${task.process}.version.txt"), path("${task.process}.version2.txt"), 				emit: version
+	path "*_trimming_report.txt", 																		emit: report
+	tuple path("${task.process}.version.txt"), path("${task.process}.version2.txt"), 					emit: version
 
 	"""
 	trim_galore --cores ${task.cpus} -o . --length ${params.min_length} --quality 0 --paired ${reads[0]} ${reads[1]}
