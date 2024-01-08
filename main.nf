@@ -72,10 +72,11 @@ if(params.annotation != 'NO_FILE'){
 annotation = file(params.annotation)
 
 // Collect all input files
-input_files = input_reads.last()
-                    .concat(Channel.of(annotation))
-                    .concat(reference)
-                    .flatten().toList()
+input_files = input_reads
+                .map{id,reads -> reads}
+                .concat(Channel.of(annotation))
+                .concat(reference)
+                .flatten().toList()
 
 /*
  * Starting subworkflow descriptions
