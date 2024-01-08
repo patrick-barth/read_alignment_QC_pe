@@ -51,7 +51,7 @@ if ( params.help ) {
 log.info """\
          ${params.manifest.name} v${params.manifest.version}
          ==========================
-         reads          : ${params.input_file}
+         reads          : ${params.input_reads}
          reference      : ${params.reference}
          output to      : ${params.output_dir}
          --
