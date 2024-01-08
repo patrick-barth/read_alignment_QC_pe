@@ -27,6 +27,7 @@ if ( params.help ) {
                 |                to run the script
                 |Required arguments:
                 |   --reads         Location of the input file file (FASTQ).
+                |   --reference     Reference sequence to align reads to (FASTA)
                 |
                 |Optional arguments:
                 |   --min_length    Minimum length for reads after adapter trimming.
@@ -51,7 +52,7 @@ if ( params.help ) {
 log.info """\
          ${params.manifest.name} v${params.manifest.version}
          ==========================
-         reads          : ${params.input_reads}
+         reads          : ${params.reads}
          reference      : ${params.reference}
          output to      : ${params.output_dir}
          --
@@ -71,7 +72,8 @@ if(params.annotation != 'NO_FILE'){
 annotation = file(params.annotation)
 
 // Collect all input files
-input_files = input_reads.concat(Channel.of(annotation))
+input_files = input_reads.last()
+                    .concat(Channel.of(annotation))
                     .concat(reference)
                     .flatten().toList()
 

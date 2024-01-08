@@ -1,6 +1,7 @@
 process collect_metadata{
     output:
-    path("metadata.txt")
+    path("metadata.txt"),                   emit: output
+    path("${task.process}.version.txt"),    emit: version
 
     script:
     """
@@ -14,6 +15,9 @@ process collect_metadata{
     Containers used: ${workflow.container}
     Git repository: ${workflow.repository}
     Repository revision: ${workflow.revision}
+    EOF
+
+    echo -e "${task.process}\tcat\t\$(cat --version | head -1 | rev | cut -f 1 -d' ' | rev)" > ${task.process}.version.txt
     """
 }
 
