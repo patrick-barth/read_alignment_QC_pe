@@ -57,6 +57,7 @@ process quality_control_2 {
  */
 process adapter_removal {
 	tag {id}
+	publishDir "${params.output_dir}/statistics/adapter_removal", mode: 'copy', pattern: "*_trimming_report.txt"
 
 	input:
 	tuple val(id), path(reads)
@@ -84,20 +85,20 @@ process adapter_removal {
  */
 process quality_filter {
 	tag {id}
-	publishDir "${params.output}/statistics", mode: 'copy', pattern: "summary-quality-filter.txt"
+	publishDir "${params.output_dir}/statistics/quality_filter", mode: 'copy', pattern: "${id}_report_quality.txt"
 
 	input:
 	tuple val(id), path(reads1), path(reads2)
 
 	output:
 	tuple val(id), path("${id}_R1.qtrim.fastq"), path("${id}_R2.qtrim.fastq"), 	emit: reads 
-	path 'summary-quality-filter.txt', 											emit: report 
+	path("${id}_report_quality.txt"), 											emit: report 
 	path("${task.process}.version.txt"), 										emit: version
 
 
 	"""
 	sickle pe -f ${reads1} -r ${reads2} -t sanger -o ${id}_R1.qtrim.fastq -p ${id}_R2.qtrim.fastq -s ${id}_single.qtrim.fastq \
-		-q ${params.min_qual} -l ${params.min_length} > summary-quality-filter.txt
+		-q ${params.min_qual} -l ${params.min_length} > ${id}_report_quality.txt
 
 		
 	echo -e "${task.process}\tsickle\t\$(sickle --version | head -1 | rev | cut -f1 -d' ' | rev)" > ${task.process}.version.txt
