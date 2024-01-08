@@ -1,4 +1,4 @@
-process final{
+process collect_metadata{
     output:
     path("metadata.txt")
 
