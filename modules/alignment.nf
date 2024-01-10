@@ -30,13 +30,13 @@ process build_index_bowtie {
  * 		  report_alignments -> [TXT] Alignment reports
  */
 process mapping_bowtie{
-	tag {query.simpleName}
+	tag {id}
 	publishDir "${params.output_dir}/alignments", mode: 'copy', pattern: "${query.simpleName}.bam"
 	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${query.simpleName}.statistics.txt"
 
 	input:
 	tuple path(ref), path(index)
-	path(query)
+	tuple val(id), path(reads1), path(reads2)
 
 	output:
 	path "${query.simpleName}.bam", 			emit: bam_alignments
@@ -44,17 +44,28 @@ process mapping_bowtie{
 	path("${task.process}.version.txt"), 		emit: version
 
 	script:
-	def all_alignments = params.report_all_alignments ? '-a' : ''
+	def all_alignments 	= params.report_all_alignments ? '-a' : ''
 	def some_alignments = params.max_alignments && !params.report_all_alignments ? "-k " + params.max_alignments : ''
+	def no_discordant	= params.no_discordant ? '--no-discordant' : ''
+	def no_mixed		= params.no_mixed ? '--no-mixed' : ''
+	def no_overlap		= params.no_overlap ? '--no-overlap' : ''
+	def no_contain		= params.no_contain ? '--no-contain' : ''
+	def dovetail		= params.dovetail ? '--dovetail' : ''
 
 	"""
 	bowtie2 --no-unal \
 		-q \
 		${all_alignments} \
 		${some_alignments} \
+		${no_discordant} \
+		${no_mixed} \
+		${no_overlap} \
+		${no_contain} \
+		${dovetail} \
 		-p ${task.cpus} \
 		--seed 0 \
-		-U ${query} \
+		-1 ${reads1} \
+		-2 ${reads2}
 		-x ${ref} \
 		2> ${query.simpleName}.statistics.txt | samtools view -bS - > ${query.simpleName}.bam
 
