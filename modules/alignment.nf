@@ -31,16 +31,16 @@ process build_index_bowtie {
  */
 process mapping_bowtie{
 	tag {id}
-	publishDir "${params.output_dir}/alignments", mode: 'copy', pattern: "${query.simpleName}.bam"
-	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${query.simpleName}.statistics.txt"
+	publishDir "${params.output_dir}/alignments", mode: 'copy', pattern: "${id}.bam"
+	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${id}.statistics.txt"
 
 	input:
 	tuple path(ref), path(index)
 	tuple val(id), path(reads1), path(reads2)
 
 	output:
-	path "${query.simpleName}.bam", 			emit: bam_alignments
-	path "${query.simpleName}.statistics.txt", 	emit: report
+	path "${id}.bam", 							emit: bam_alignments
+	path "${id}.statistics.txt", 				emit: report
 	path("${task.process}.version.txt"), 		emit: version
 
 	script:
@@ -65,9 +65,9 @@ process mapping_bowtie{
 		-p ${task.cpus} \
 		--seed 0 \
 		-1 ${reads1} \
-		-2 ${reads2}
+		-2 ${reads2} \
 		-x ${ref} \
-		2> ${query.simpleName}.statistics.txt | samtools view -bS - > ${query.simpleName}.bam
+		2> ${id}.statistics.txt | samtools view -bS - > ${id}.bam
 
 	echo -e "${task.process}\tbowtie2\t\$(bowtie2 --version | head -1 | rev | cut -f1 -d' ' | rev)" > ${task.process}.version.txt
 	echo -e "${task.process}\tsamtools\t\$(samtools --version | head -1 | rev | cut -f1 -d' ' | rev)" >> ${task.process}.version.txt
