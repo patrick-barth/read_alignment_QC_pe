@@ -143,7 +143,7 @@ workflow {
 
     alignment(reference,
             annotation,
-            quality_filter.out.fastq_quality_filtered
+            quality_filter.out.reads
     )
 
     // Collect metadata
