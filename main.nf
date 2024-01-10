@@ -18,6 +18,18 @@ include {
     quality_filter
 } from './modules/read_processing.nf'
 
+if (params.aligner == "bowtie2"){
+    include{
+        build_index_bowtie
+        mapping_bowtie
+    } from './modules/alignment.nf'
+} else if (params.aligner == "star"){
+    include{
+        build_index_STAR
+        mapping_STAR
+    } from './modules/alignment.nf'
+}
+
 /*
  * Prints help and exits workflow afterwards when parameter --help is set to true
  */
@@ -52,13 +64,15 @@ if ( params.help ) {
 log.info """\
         ${params.manifest.name} v${params.manifest.version}
         ==========================
-        reads          : ${params.reads}
-        reference      : ${params.reference}
-        output to      : ${params.output_dir}
+        reads           : ${params.reads}
+        reference       : ${params.reference}
+        output to       : ${params.output_dir}
         --
-        run as         : ${workflow.commandLine}
-        started at     : ${workflow.start}
-        config files   : ${workflow.configFiles}
+        aligner         : ${params.aligner}
+        --
+        run as          : ${workflow.commandLine}
+        started at      : ${workflow.start}
+        config files    : ${workflow.configFiles}
         """
         .stripIndent()
 
@@ -82,6 +96,42 @@ input_files = input_reads
  * Starting subworkflow descriptions
  */
 
+workflow alignment {
+    take:
+        reference
+        annotation
+        reads
+
+    main:
+        if(params.aligner == "bowtie2"){
+            build_index_bowtie(reference)
+            mapping_bowtie(build_index_bowtie.out.index.first(),
+                            reads)
+
+            alignments_tmp          =   mapping_bowtie.out.bam_alignments
+            version_index_tmp       =   build_index_bowtie.out.version
+            version_align_tmp       =   mapping_bowtie.out.version
+            report_tmp              =   mapping_bowtie.out.report
+        } else if (params.aligner == "star"){
+            build_index_STAR(reference,
+                            annotation)
+            mapping_STAR(reads
+                        .combine(build_index_STAR.out.index))
+
+            alignments_tmp          =   mapping_STAR.out.bam_alignments
+            version_index_tmp       =   build_index_STAR.out.version
+            version_align_tmp       =   mapping_STAR.out.version
+            report_tmp              =   mapping_STAR.out.report
+        } 
+
+    emit:
+        version_index   =   version_index_tmp
+        version_align   =   version_align_tmp
+        reports         =   report_tmp
+
+        alignments      =   alignments_tmp
+}
+
 /*
  * Actual workflow connecting subworkflows
  */
@@ -90,6 +140,11 @@ workflow {
     adapter_removal(input_reads)
     quality_filter(adapter_removal.out.reads)
     quality_control_2(quality_filter.out.reads)
+
+    alignment(reference,
+            annotation,
+            quality_filter.out.fastq_quality_filtered
+    )
 
     // Collect metadata
     collect_metadata()
@@ -100,6 +155,8 @@ workflow {
                         .concat(adapter_removal.out.version)
                         .concat(quality_filter.out.version)
                         .concat(quality_control_2.out.version)
+                        .concat(alignment.out.version_index)
+                        .concat(alignment.out.version_align)
                         .unique()
                         .flatten().toList()
     )
