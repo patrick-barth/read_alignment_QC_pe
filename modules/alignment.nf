@@ -116,7 +116,7 @@ process build_index_STAR {
  *		report_alignments -> [TXT] Alignment report
  */
 process mapping_STAR{
-	tag {id\}
+	tag {id}
 	publishDir "${params.output_dir}/alignments", mode: 'copy', pattern: "${id}.Aligned.sortedByCoord.out.bam"
 	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${id}.Log.*"
 
