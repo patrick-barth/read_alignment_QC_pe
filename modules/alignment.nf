@@ -121,7 +121,7 @@ process mapping_STAR{
 	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${id}.Log.*"
 
 	input:
-	tuple val(id), path(reads1), path(reads2)
+	tuple val(id), path(reads1), path(reads2), path(indexDir)
 
 	output:
 	path("${id}.Aligned.sortedByCoord.out.bam"), 	emit: bam_alignments
