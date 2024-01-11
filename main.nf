@@ -125,8 +125,8 @@ workflow alignment {
         } 
 
     emit:
-        version_index   =   version_index_tmp
-        version_align   =   version_align_tmp
+        version_index   =   version_index_tmp.first()
+        version_align   =   version_align_tmp.first()
         reports         =   report_tmp
 
         alignments      =   alignments_tmp
@@ -151,13 +151,12 @@ workflow {
     get_md5sum(input_files)
     collect_versions(collect_metadata.out.version
                         .concat(get_md5sum.out.version)
-                        .concat(quality_control.out.version)
-                        .concat(adapter_removal.out.version)
-                        .concat(quality_filter.out.version)
-                        .concat(quality_control_2.out.version)
-                        .concat(alignment.out.version_index)
-                        .concat(alignment.out.version_align)
-                        .unique()
+                        .concat(quality_control.out.version.first())
+                        .concat(adapter_removal.out.version.first())
+                        .concat(quality_filter.out.version.first())
+                        .concat(quality_control_2.out.version.first())
+                        .concat(alignment.out.version_index.first())
+                        .concat(alignment.out.version_align.first())
                         .flatten().toList()
     )
 }
