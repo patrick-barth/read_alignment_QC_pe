@@ -116,16 +116,16 @@ process build_index_STAR {
  *		report_alignments -> [TXT] Alignment report
  */
 process mapping_STAR{
-	tag {query.simpleName}
-	publishDir "${params.output_dir}/alignments", mode: 'copy', pattern: "${query.baseName}.Aligned.sortedByCoord.out.bam"
-	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${query.baseName}.Log.*"
+	tag {id\}
+	publishDir "${params.output_dir}/alignments", mode: 'copy', pattern: "${id}.Aligned.sortedByCoord.out.bam"
+	publishDir "${params.output_dir}/statistics", mode: 'copy', pattern: "${id}.Log.*"
 
 	input:
-	tuple path(query), path(indexDir)
+	tuple val(id), path(reads1), path(reads2)
 
 	output:
-	path("${query.baseName}.Aligned.sortedByCoord.out.bam"), 	emit: bam_alignments
-	path("${query.baseName}.Log.*"), 							emit: report
+	path("${id}.Aligned.sortedByCoord.out.bam"), 	emit: bam_alignments
+	path("${id}.Log.*"), 							emit: report
 	path("${task.process}.version.txt"), 						emit: version
 
 	script:
@@ -135,8 +135,8 @@ process mapping_STAR{
 	"""
 	STAR --runThreadN ${task.cpus} \
 		--genomeDir ${indexDir} \
-		--readFilesIn ${query} \
-		--outFileNamePrefix ${query.baseName}. \
+		--readFilesIn ${reads1} ${reads2} \
+		--outFileNamePrefix ${id}. \
 		${all_alignments} \
 		${some_alignments} \
 		--outSAMtype BAM SortedByCoordinate
