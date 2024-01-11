@@ -125,8 +125,8 @@ workflow alignment {
         } 
 
     emit:
-        version_index   =   version_index_tmp.first()
-        version_align   =   version_align_tmp.first()
+        version_index   =   version_index_tmp
+        version_align   =   version_align_tmp
         reports         =   report_tmp
 
         alignments      =   alignments_tmp
